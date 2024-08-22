@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="sbt: org.scorexfoundation:scrypto_2.12:2.3.0-4-a0bc6176-SNAPSHOT:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/AppData/Local/Coursier/cache/v1/https/oss.sonatype.org/content/groups/public/org/scorexfoundation/scrypto_2.12/2.3.0-4-a0bc6176-SNAPSHOT/scrypto_2.12-2.3.0-4-a0bc6176-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/AppData/Local/Coursier/cache/v1/https/oss.sonatype.org/content/groups/public/org/scorexfoundation/scrypto_2.12/2.3.0-4-a0bc6176-SNAPSHOT/scrypto_2.12-2.3.0-4-a0bc6176-SNAPSHOT-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/AppData/Local/Coursier/cache/v1/https/oss.sonatype.org/content/groups/public/org/scorexfoundation/scrypto_2.12/2.3.0-4-a0bc6176-SNAPSHOT/scrypto_2.12-2.3.0-4-a0bc6176-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

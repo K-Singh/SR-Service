@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/subpooling_core.iml" filepath="$PROJECT_DIR$/.idea/modules/subpooling_core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/subpooling_service.iml" filepath="$PROJECT_DIR$/.idea/modules/subpooling_service.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/subpooling_service-build.iml" filepath="$PROJECT_DIR$/.idea/modules/subpooling_service-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SR_service.iml" filepath="$PROJECT_DIR$/.idea/modules/SR_service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SR_service-build.iml" filepath="$PROJECT_DIR$/.idea/modules/SR_service-build.iml" />
     </modules>
   </component>
 </project>

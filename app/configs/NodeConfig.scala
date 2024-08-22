@@ -1,11 +1,13 @@
 package configs
 
 
-import io.getblok.subpooling_core.global.AppParameters
-import io.getblok.subpooling_core.global.AppParameters.{NodeWallet, PK}
+
 import org.ergoplatform.appkit.{ErgoClient, ErgoProver, NetworkType, RestApiErgoClient, SecretStorage}
+import org.ergoplatform.explorer.client.ExplorerApiClient
 import org.ergoplatform.restapi.client.ApiClient
 import play.api.Configuration
+import play.api.libs.ws.WSClient
+import utils.ExplorerDataSource
 
 class NodeConfig(config: Configuration) {
   private val nodeURL: String = config.get[String]("node.url")
@@ -14,27 +16,25 @@ class NodeConfig(config: Configuration) {
   private val storagePath: String = config.get[String]("node.storagePath")
   private val password:    String = config.get[String]("node.pass")
   private val networkType: NetworkType = NetworkType.valueOf(config.get[String]("node.networkType"))
-  private val scriptBase: String = config.get[String]("params.scriptBasePath")
-  private val secretStorage: SecretStorage = SecretStorage.loadFrom(storagePath)
+
   private var explorerURL: String = config.get[String]("node.explorerURL")
 
-  AppParameters.networkType = getNetwork
-  AppParameters.scriptBasePath = scriptBase
-  secretStorage.unlock(password)
+
+
   if(explorerURL == "default")
     explorerURL = RestApiErgoClient.getDefaultExplorerUrl(networkType)
-  private val ergoClient: ErgoClient = RestApiErgoClient.create(nodeURL, networkType, nodeKey, getExplorerURL)
-  val apiClient = new ApiClient(nodeURL, "ApiKeyAuth", nodeKey)
-  private val prover: ErgoProver = ergoClient.execute{
-    ctx =>
-      ctx.newProverBuilder().withSecretStorage(secretStorage).withEip3Secret(0).build()
-  }
-  private val nodeWallet: NodeWallet = NodeWallet(PK(prover.getEip3Addresses.get(0)), prover)
+
+  private val ergoClient: ErgoClient  = RestApiErgoClient.create(nodeURL, networkType, nodeKey, getExplorerURL)
+  val apiClient                       = new ApiClient(nodeURL, "ApiKeyAuth", nodeKey)
+  val explorerClient                  = new ExplorerApiClient(explorerURL)
+
+
 
 
   def getNetwork: NetworkType   = networkType
   def getExplorerURL: String    = explorerURL
   def getClient: ErgoClient     = ergoClient
-  def getNodeWallet: NodeWallet = nodeWallet
+  def getNodeURL: String        = nodeURL
+  def getExplorer(wsClient: WSClient)     = new ExplorerDataSource(apiClient, explorerClient, wsClient)
 
 }
