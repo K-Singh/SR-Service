@@ -2,6 +2,8 @@ package configs
 
 import play.api.Configuration
 
+import scala.concurrent.duration.FiniteDuration
+
 class ParamsConfig(config: Configuration){
 
 
@@ -9,4 +11,5 @@ class ParamsConfig(config: Configuration){
     val startHeight:    Int       = config.get[Int]("params.startHeight")
     val numClaims:      Int       = config.get[Int]("params.numClaims")
 
+    val apiWait:        FiniteDuration  = config.get[FiniteDuration]("params.apiWaitTime")
 }

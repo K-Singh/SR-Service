@@ -13,7 +13,7 @@ import retrofit2.{Call, Response, Retrofit}
 import java.util
 import java.util.List
 import scala.concurrent.Await
-import scala.concurrent.duration.{Duration, DurationInt}
+import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
 
 class ExplorerDataSource(nodeClient: ApiClient, explorerClient: ExplorerApiClient, wsClient: WSClient)
   extends NodeAndExplorerDataSourceImpl(nodeClient, explorerClient){
@@ -32,13 +32,13 @@ class ExplorerDataSource(nodeClient: ApiClient, explorerClient: ExplorerApiClien
     case e: Exception =>
       throw new ErgoClientException(String.format("Error executing API request to %s: %s", apiCall.request.url, e.getMessage), e)
   }
-  def getUnspentBoxIdsByHeight(minHeight: Int, maxHeight: Int): Seq[String] = {
+  def getUnspentBoxIdsByHeight(minHeight: Int, maxHeight: Int, waitTime: FiniteDuration): Seq[String] = {
     val response =
       wsClient
       .url(RestApiErgoClient.defaultTestnetExplorerUrl+"/api/v1/boxes/unspent/stream")
       .withQueryStringParameters("minHeight" -> minHeight.toString, "maxHeight" -> maxHeight.toString)
       .get()
-    val boxResponse = Await.result(response, 5.second).body
+    val boxResponse = Await.result(response, waitTime).body
 
     var boxIds = Seq.empty[String]
     var lastIdx = 0

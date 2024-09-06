@@ -37,9 +37,9 @@ class UTXOCollector @Inject()(WSClient: WSClient, system: ActorSystem, config: C
     system.scheduler.scheduleWithFixedDelay(initialDelay = taskConfig.startup, delay = taskConfig.interval)({
       () =>
         logger.info("Collecting utxos...")
-        val boxIds = explorer.getUnspentBoxIdsByHeight(start, end)
+        val boxIds = explorer.getUnspentBoxIdsByHeight(start, end, params.apiWait)
         logger.info(s"Found ${boxIds.size} boxes available to spend between heights ${start} and ${end}")
-        logger.info(s"Box Ids: ${boxIds.mkString("(", ", " , ")")}")
+        //logger.info(s"Box Ids: ${boxIds.mkString("(", ", " , ")")}")
 
         ConcurrentBoxLoader.loadUTXOs(boxIds)
 
