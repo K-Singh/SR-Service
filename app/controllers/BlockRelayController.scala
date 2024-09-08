@@ -15,7 +15,7 @@ import utils.{ConcurrentBoxLoader, UTXOCache}
 import javax.inject.Inject
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, ExecutionContext}
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class BlockRelayController @Inject()(ws: WSClient, system: ActorSystem, val controllerComponents: ControllerComponents, config: Configuration)
 extends BaseController{
@@ -26,16 +26,31 @@ extends BaseController{
   val client: ErgoClient = nodeConfig.getClient
   val logger: Logger = Logger("API")
 
-  // States
+
   def getBlockTemplateSR: Action[AnyContent] = Action.async {
     implicit val apiContext: ExecutionContext = system.dispatchers.lookup("sr-contexts.api-dispatcher")
-    val queriedUtxos = queryRentUtxos
-    if(queriedUtxos.isEmpty)
+
+    val queriedUtxos = {
+
+      if(paramsConfig.enableStorageRent){
+
+        Try(queryRentUtxos) match {
+          case Failure(exception) =>
+            logger.error("Failed to query rent utxos, returning 0 utxos to node", exception)
+            Seq.empty[String]
+          case Success(value) =>
+            value
+        }
+      }else{
+        Seq.empty
+      }
+    }
+    if(queriedUtxos.isEmpty && paramsConfig.enableStorageRent)
       logger.warn("Found no utxos during query!")
     val utxoObj = Json.toJson(queriedUtxos)
     val post = ws.url(nodeConfig.getNodeURL+"/mining/candidateWithRent").post(utxoObj)
 
-    val response = Await.result(post, 10.seconds).body
+    //val response = Await.result(post, 10.seconds).body
     // For response caching, to be added later
 //    if(UTXOCache.isResponseCached(response)){
 //      logger.warn("Received new response from Ergo Node")
@@ -55,7 +70,7 @@ extends BaseController{
         ctx =>
           val successfulUtxos = cachedUtxos.map(u => Try(ctx.getBoxesById(u))).filter(u => u.isSuccess).flatMap(_.get)
           if(successfulUtxos.nonEmpty){
-            val withTokens = successfulUtxos.filter(!_.getTokens.isEmpty)
+            //val withTokens = successfulUtxos.filter(!_.getTokens.isEmpty)
             //logger.info(s"Found ${withTokens.size} utxos with tokens")
            // logger.info(withTokens.map(_.getId.toString()).mkString(", "))
             if(cachedUtxos.size == successfulUtxos.size) {

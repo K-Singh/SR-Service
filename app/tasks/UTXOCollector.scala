@@ -36,22 +36,28 @@ class UTXOCollector @Inject()(WSClient: WSClient, system: ActorSystem, config: C
       s" ${taskConfig.interval}")
     system.scheduler.scheduleWithFixedDelay(initialDelay = taskConfig.startup, delay = taskConfig.interval)({
       () =>
-        logger.info("Collecting utxos...")
-        val boxIds = explorer.getUnspentBoxIdsByHeight(start, end, params.apiWait)
-        logger.info(s"Found ${boxIds.size} boxes available to spend between heights ${start} and ${end}")
-        //logger.info(s"Box Ids: ${boxIds.mkString("(", ", " , ")")}")
+        if(ConcurrentBoxLoader.size < params.collectionLimit) {
+          logger.info("Collecting utxos...")
+          val boxIds = explorer.getUnspentBoxIdsByHeight(start, end, params.apiWait)
+          logger.info(s"Found ${boxIds.size} boxes available to spend between heights ${start} and ${end}")
+          //logger.info(s"Box Ids: ${boxIds.mkString("(", ", " , ")")}")
 
-        ConcurrentBoxLoader.loadUTXOs(boxIds)
+          ConcurrentBoxLoader.loadUTXOs(boxIds)
 
-        client.execute{
-          ctx =>
-            end = Math.min(end + params.heightInterval, ctx.getHeight - FOUR_YEARS)
+          client.execute {
+            ctx =>
+              end = Math.min(end + params.heightInterval, ctx.getHeight - FOUR_YEARS)
+          }
+          logger.info(s"Chose new ending height ${end}")
+          start = end - params.heightInterval
+          logger.info(s"Chose new starting height ${start}")
+
+          logger.info("Finished collecting utxos")
+        }else{
+          logger.warn(s"There are currently ${ConcurrentBoxLoader.size} queued utxos (Limit: ${params.collectionLimit})")
+          logger.warn("Skipping UTXO collection")
         }
-        logger.info(s"Chose new ending height ${end}")
-        start = end - params.heightInterval
-        logger.info(s"Chose new starting height ${start}")
 
-        logger.info("Finished collecting utxos")
     })(contexts.taskContext)
   }
 

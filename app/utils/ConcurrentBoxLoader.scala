@@ -21,5 +21,5 @@ object ConcurrentBoxLoader {
     for(i <- 0 until amnt) yield Option(loadedBoxes.poll())
   }
 
-  def size = loadedBoxes.size()
+  def size: Int = loadedBoxes.size()
 }
